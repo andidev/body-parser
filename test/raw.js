@@ -23,10 +23,10 @@ describe('bodyParser.raw()', function () {
     request(createServer({
       parser: function (body) { return body.toString('utf8') }
     }))
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .send('the user is tobi')
-    .expect(200, '"the user is tobi"', done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .send('the user is tobi')
+      .expect(200, '"the user is tobi"', done)
   })
 
   it('should 400 when invalid content-length', function (done) {

@@ -23,10 +23,10 @@ describe('bodyParser.text()', function () {
     request(createServer({
       parser: function (input) { return input.toUpperCase() }
     }))
-    .post('/')
-    .set('Content-Type', 'text/plain')
-    .send('user is tobi')
-    .expect(200, '"USER IS TOBI"', done)
+      .post('/')
+      .set('Content-Type', 'text/plain')
+      .send('user is tobi')
+      .expect(200, '"USER IS TOBI"', done)
   })
 
   it('should 400 when invalid content-length', function (done) {
