@@ -13,10 +13,10 @@ describe('bodyParser.raw()', function () {
 
   it('should parse application/octet-stream', function (done) {
     request(this.server)
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .send('the user is tobi')
-    .expect(200, 'buf:746865207573657220697320746f6269', done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .send('the user is tobi')
+      .expect(200, 'buf:746865207573657220697320746f6269', done)
   })
 
   it('should parse application/octet-stream with a custom parser', function (done) {
@@ -37,27 +37,27 @@ describe('bodyParser.raw()', function () {
     })
 
     request(server)
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .send('stuff')
-    .expect(400, /content length/, done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .send('stuff')
+      .expect(400, /content length/, done)
   })
 
   it('should handle Content-Length: 0', function (done) {
     request(this.server)
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .set('Content-Length', '0')
-    .expect(200, 'buf:', done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .set('Content-Length', '0')
+      .expect(200, 'buf:', done)
   })
 
   it('should handle empty message-body', function (done) {
     request(this.server)
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .set('Transfer-Encoding', 'chunked')
-    .send('')
-    .expect(200, 'buf:', done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .set('Transfer-Encoding', 'chunked')
+      .send('')
+      .expect(200, 'buf:', done)
   })
 
   it('should handle duplicated middleware', function (done) {
@@ -70,10 +70,10 @@ describe('bodyParser.raw()', function () {
     })
 
     request(server)
-    .post('/')
-    .set('Content-Type', 'application/octet-stream')
-    .send('the user is tobi')
-    .expect(200, 'buf:746865207573657220697320746f6269', done)
+      .post('/')
+      .set('Content-Type', 'application/octet-stream')
+      .send('the user is tobi')
+      .expect(200, 'buf:746865207573657220697320746f6269', done)
   })
 
   describe('with limit option', function () {
@@ -192,21 +192,21 @@ describe('bodyParser.raw()', function () {
       it('should parse "application/octet-stream"', function (done) {
         var test = request(this.server).post('/')
         test.set('Content-Type', 'application/octet-stream')
-        test.write(new Buffer('000102', 'hex'))
+        test.write(Buffer.from('000102', 'hex'))
         test.expect(200, 'buf:000102', done)
       })
 
       it('should parse "application/vnd+octets"', function (done) {
         var test = request(this.server).post('/')
         test.set('Content-Type', 'application/vnd+octets')
-        test.write(new Buffer('000102', 'hex'))
+        test.write(Buffer.from('000102', 'hex'))
         test.expect(200, 'buf:000102', done)
       })
 
       it('should ignore "application/x-foo"', function (done) {
         var test = request(this.server).post('/')
         test.set('Content-Type', 'application/x-foo')
-        test.write(new Buffer('000102', 'hex'))
+        test.write(Buffer.from('000102', 'hex'))
         test.expect(200, '{}', done)
       })
     })
@@ -245,8 +245,8 @@ describe('bodyParser.raw()', function () {
         }
 
         request(server)
-        .get('/')
-        .expect(200, done)
+          .get('/')
+          .expect(200, done)
       })
     })
   })
@@ -258,9 +258,11 @@ describe('bodyParser.raw()', function () {
     })
 
     it('should error from verify', function (done) {
-      var server = createServer({verify: function (req, res, buf) {
-        if (buf[0] === 0x00) throw new Error('no leading null')
-      }})
+      var server = createServer({
+        verify: function (req, res, buf) {
+          if (buf[0] === 0x00) throw new Error('no leading null')
+        }
+      })
 
       var test = request(server).post('/')
       test.set('Content-Type', 'application/octet-stream')
@@ -269,12 +271,14 @@ describe('bodyParser.raw()', function () {
     })
 
     it('should allow custom codes', function (done) {
-      var server = createServer({verify: function (req, res, buf) {
-        if (buf[0] !== 0x00) return
-        var err = new Error('no leading null')
-        err.status = 400
-        throw err
-      }})
+      var server = createServer({
+        verify: function (req, res, buf) {
+          if (buf[0] !== 0x00) return
+          var err = new Error('no leading null')
+          err.status = 400
+          throw err
+        }
+      })
 
       var test = request(server).post('/')
       test.set('Content-Type', 'application/octet-stream')
@@ -283,9 +287,11 @@ describe('bodyParser.raw()', function () {
     })
 
     it('should allow pass-through', function (done) {
-      var server = createServer({verify: function (req, res, buf) {
-        if (buf[0] === 0x00) throw new Error('no leading null')
-      }})
+      var server = createServer({
+        verify: function (req, res, buf) {
+          if (buf[0] === 0x00) throw new Error('no leading null')
+        }
+      })
 
       var test = request(server).post('/')
       test.set('Content-Type', 'application/octet-stream')
@@ -351,7 +357,7 @@ describe('bodyParser.raw()', function () {
       test.expect(200, 'buf:6e616d653de8aeba', done)
     })
 
-    it('should fail on unknown encoding', function (done) {
+    it('should 415 on unknown encoding', function (done) {
       var test = request(this.server).post('/')
       test.set('Content-Encoding', 'nulls')
       test.set('Content-Type', 'application/octet-stream')

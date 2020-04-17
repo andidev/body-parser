@@ -4,12 +4,17 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
-[![Gratipay][gratipay-image]][gratipay-url]
 
 Node.js body parsing middleware.
 
 Parse incoming request bodies in a middleware before your handlers, available
 under the `req.body` property.
+
+**Note** As `req.body`'s shape is based on user-controlled input, all
+properties and values in this object are untrusted and should be validated
+before trusting. For example, `req.body.foo.toString()` may fail in multiple
+ways, for example the `foo` property may not be there or may not be a string,
+and `toString` may not be a function and instead a string or other user input.
 
 [Learn about the anatomy of an HTTP transaction in Node.js](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/).
 
@@ -315,14 +320,15 @@ parser(body) -> req.body
 
 ## Errors
 
-The middlewares provided by this module create errors depending on the error
-condition during parsing. The errors will typically have a `status`/`statusCode`
-property that contains the suggested HTTP response code, an `expose` property
-to determine if the `message` property should be displayed to the client, a
-`type` property to determine the type of error without matching against the
-`message`, and a `body` property containing the read body, if available.
+The middlewares provided by this module create errors using the
+[`http-errors` module](https://www.npmjs.com/package/http-errors). The errors
+will typically have a `status`/`statusCode` property that contains the suggested
+HTTP response code, an `expose` property to determine if the `message` property
+should be displayed to the client, a `type` property to determine the type of
+error without matching against the `message`, and a `body` property containing
+the read body, if available.
 
-The following are the common errors emitted, though any error can come through
+The following are the common errors created, though any error can come through
 for various reasons.
 
 ### content encoding unsupported
@@ -332,6 +338,20 @@ contained an encoding but the "inflation" option was set to `false`. The
 `status` property is set to `415`, the `type` property is set to
 `'encoding.unsupported'`, and the `charset` property will be set to the
 encoding that is unsupported.
+
+### entity parse failed
+
+This error will occur when the request contained an entity that could not be
+parsed by the middleware. The `status` property is set to `400`, the `type`
+property is set to `'entity.parse.failed'`, and the `body` property is set to
+the entity value that failed parsing.
+
+### entity verify failed
+
+This error will occur when the request contained an entity that could not be
+failed verification by the defined `verify` option. The `status` property is
+set to `403`, the `type` property is set to `'entity.verify.failed'`, and the
+`body` property is set to the entity value that failed verification.
 
 ### request aborted
 
@@ -433,13 +453,11 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // POST /login gets urlencoded bodies
 app.post('/login', urlencodedParser, function (req, res) {
-  if (!req.body) return res.sendStatus(400)
   res.send('welcome, ' + req.body.username)
 })
 
 // POST /api/users gets JSON bodies
 app.post('/api/users', jsonParser, function (req, res) {
-  if (!req.body) return res.sendStatus(400)
   // create user in req.body
 })
 ```
@@ -477,5 +495,3 @@ app.use(bodyParser.text({ type: 'text/html' }))
 [coveralls-url]: https://coveralls.io/r/expressjs/body-parser?branch=master
 [downloads-image]: https://img.shields.io/npm/dm/body-parser.svg
 [downloads-url]: https://npmjs.org/package/body-parser
-[gratipay-image]: https://img.shields.io/gratipay/dougwilson.svg
-[gratipay-url]: https://www.gratipay.com/dougwilson/
